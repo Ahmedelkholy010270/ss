@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر الهوديهات والملابس الفاخرة | تيك زون</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        gold: { 400: '#FBBF24', 500: '#D97706', 600: '#B45309' },
+                        dark: { 900: '#111827', 800: '#1F2937', 700: '#374151' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { background-color: #0a0a0a; color: #f3f4f6; overflow-x: hidden; }
+        .glass-panel { background: rgba(31, 41, 55, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(251, 191, 36, 0.15); }
+        .gold-gradient-text { background: linear-gradient(to right, #FBBF24, #FDE68A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-gold { background: linear-gradient(to right, #D97706, #FBBF24); color: #000; font-weight: bold; transition: all 0.3s; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); }
+        .swatch.selected { outline: 2px solid #FBBF24; outline-offset: 2px; transform: scale(1.1); }
+        .size-btn.selected { background-color: #FBBF24; color: #000; border-color: #FBBF24; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #D97706; border-radius: 10px; }
+
+        #cart-sidebar { right: -100%; transition: right 0.4s ease-in-out; }
+        #cart-sidebar.open { right: 0; }
+        #toast { transition: opacity 0.3s, transform 0.3s; }
+    </style>
+</head>
+<body class="antialiased font-sans">
+
+    <nav class="glass-panel sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-lg">
+        <div class="text-2xl font-bold gold-gradient-text">
+            <i class="fa-solid fa-crown mr-2"></i> تيك زون
+        </div>
+        <button onclick="toggleCart()" class="relative text-gold-400 text-2xl hover:text-gold-500 transition">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span id="cart-count" class="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+        </button>
+    </nav>
+
+    <header class="text-center py-12 px-4">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-white">تشكيلة الشتاء <span class="gold-gradient-text">الفاخرة</span></h1>
+        <p class="text-gray-400 max-w-xl mx-auto text-lg">اختر الموديل، حدد لونك المفضل، وأضف لمستك بالطباعة المخصصة.</p>
+    </header>
+
+    <main class="container mx-auto px-4 pb-20" id="products-container"></main>
+
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleCart()"></div>
+    <div id="cart-sidebar" class="fixed top-0 h-full w-full md:w-96 glass-panel z-50 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+            <h2 class="text-2xl font-bold gold-gradient-text">سلة المشتريات</h2>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-gray-500 mt-10" id="empty-cart-msg">السلة فارغة حالياً</div>
+        </div>
+
+        <div class="p-6 border-t border-gray-700 bg-dark-900">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-lg text-gray-300">الإجمالي:</span>
+                <span class="text-2xl font-bold text-gold-400" id="cart-total">0 ج.م</span>
+            </div>
+            <button onclick="checkoutWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition duration-300 text-lg">
+                <i class="fa-brands fa-whatsapp text-2xl"></i>
+                إتمام الطلب عبر واتساب
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none z-50">
+        تمت الإضافة إلى السلة بنجاح!
+    </div>
+
+    <script>
+        const productsData = [
+            { 
+                id: 1, 
+                name: 'هودي كلاسيك مقفول', 
+                price: 500, 
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1)_2.jpeg', 
+                colors: [
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1)_2.jpeg' },
+                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM_2.jpeg' },
+                    { name: 'بيج', hex: '#d4c4b7', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM_2.jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM (1)_2.jpeg' },
+                    { name: 'بينك', hex: '#e9aab6', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM_2.jpeg' }
+                ]
+            },
+            { 
+                id: 2, 
+                name: 'هودي بسوستة', 
+                price: 600, 
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.00 PM_2.jpeg',
+                colors: [
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.00 PM_2.jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1)_2.jpeg' },
+                    { name: 'زيتي', hex: '#4c5243', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (2)_2.jpeg' },
+                    { name: 'بيج', hex: '#c5b49f', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM_2.jpeg' },
+                    { name: 'رصاصي', hex: '#9ca3af', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (1).jpeg' },
+                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (2).jpeg' }
+                ]
+            },
+            { 
+                id: 3, 
+                name: 'سويت شيرت راوند', 
+                price: 500, 
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (3).jpeg', 
+                colors: [
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (3).jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (4).jpeg' },
+                    { name: 'رصاصي', hex: '#9ca3af', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (5).jpeg' },
+                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (6).jpeg' },
+                    { name: 'أوف وايت', hex: '#f0ede6', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM.jpeg' },
+                    { name: 'لبني', hex: '#b0c4de', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (1).jpeg' }
+                ]
+            },
+            { 
+                id: 4, 
+                name: 'شروال وايد ليج', 
+                price: 450, 
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (2).jpeg', 
+                colors: [
+                    { name: 'رصاصي', hex: '#9ca3af', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (2).jpeg' },
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (3).jpeg' },
+                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.05 PM.jpeg' },
+                    { name: 'بيج', hex: '#c5b49f', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (6).jpeg' },
+                    { name: 'زيتي', hex: '#4c5243', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (5).jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.04 PM (4).jpeg' }
+                ]
+            }
+        ];
+
+        const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+        let cart = [];
+        let productStates = {}; 
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>';
+            const grid = container.firstChild;
+
+            productsData.forEach(product => {
+                productStates[product.id] = { color: null, size: null, withPrint: false, printText: '', currentImg: product.defaultImg };
+
+                const card = document.createElement('div');
+                card.className = 'glass-panel rounded-2xl overflow-hidden shadow-xl flex flex-col';
+                
+                card.innerHTML = `
+                    <div class="relative h-72 md:h-80 overflow-hidden bg-gray-800">
+                        <img id="img-${product.id}" src="${product.defaultImg}" alt="${product.name}" class="w-full h-full object-cover transform hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x800/1F2937/FFFFFF?text=صورة+غير+متوفرة'">
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-gold-400 font-bold px-3 py-1 rounded-full">
+                            ${product.price} ج.م
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h2 class="text-2xl font-bold mb-4 text-white">${product.name}</h2>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm text-gray-400 mb-2">اللون:</label>
+                            <div class="flex gap-3 flex-wrap" id="colors-${product.id}">
+                                ${product.colors.map(color => `
+                                    <button onclick="selectColor(${product.id}, '${color.name}', '${color.img}', this)" 
+                                            class="swatch w-8 h-8 rounded-full border border-gray-500 shadow-sm cursor-pointer transition"
+                                            style="background-color: ${color.hex};" title="${color.name}"></button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="block text-sm text-gray-400 mb-2">المقاس:</label>
+                            <div class="flex gap-2 flex-wrap" id="sizes-${product.id}">
+                                ${sizes.map(size => `
+                                    <button onclick="selectSize(${product.id}, '${size}', this)" 
+                                            class="size-btn border border-gray-600 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-300 hover:border-gold-400 transition">
+                                        ${size}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        ${product.id !== 4 ? `
+                        <div class="mb-6 p-4 border border-gray-700 rounded-xl bg-dark-800 bg-opacity-50">
+                            <label class="flex items-center cursor-pointer gap-3 mb-3">
+                                <input type="checkbox" onchange="togglePrint(${product.id}, this.checked)" class="w-5 h-5 accent-gold-500 rounded cursor-pointer">
+                                <span class="font-semibold text-gray-200 text-sm">إضافة طباعة مخصصة (+50 ج.م)</span>
+                            </label>
+                            <div id="print-input-container-${product.id}" class="hidden mt-2">
+                                <textarea id="print-text-${product.id}" oninput="updatePrintText(${product.id}, this.value)" rows="2" placeholder="اكتب الجملة أو وصف الصورة للطباعة..." class="w-full bg-dark-900 border border-gray-600 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-gold-500 resize-none"></textarea>
+                            </div>
+                        </div>
+                        ` : '<div class="mb-6 flex-1"></div>'}
+
+                        <div class="mt-auto">
+                            <button onclick="addToCart(${product.id})" class="w-full btn-gold py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-bold">
+                                <i class="fa-solid fa-cart-plus"></i> أضف إلى السلة
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectColor(productId, colorName, imageSrc, buttonElement) {
+            productStates[productId].color = colorName;
+            document.getElementById(`img-${productId}`).src = imageSrc;
+            const container = document.getElementById(`colors-${productId}`);
+            const buttons = container.querySelectorAll('.swatch');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            buttonElement.classList.add('selected');
+        }
+
+        function selectSize(productId, size, buttonElement) {
+            productStates[productId].size = size;
+            const container = document.getElementById(`sizes-${productId}`);
+            const buttons = container.querySelectorAll('.size-btn');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            buttonElement.classList.add('selected');
+        }
+
+        function togglePrint(productId, isChecked) {
+            productStates[productId].withPrint = isChecked;
+            const inputContainer = document.getElementById(`print-input-container-${productId}`);
+            if (isChecked) {
+                inputContainer.classList.remove('hidden');
+            } else {
+                inputContainer.classList.add('hidden');
+                document.getElementById(`print-text-${productId}`).value = '';
+                productStates[productId].printText = '';
+            }
+        }
+
+        function updatePrintText(productId, text) {
+            productStates[productId].printText = text;
+        }
+
+        function addToCart(productId) {
+            const state = productStates[productId];
+            if (!state.color || !state.size) {
+                alert('الرجاء اختيار اللون والمقاس أولاً!');
+                return;
+            }
+            if (state.withPrint && state.printText.trim() === '') {
+                alert('الرجاء كتابة تفاصيل الطباعة أو إلغاء علامة الصح من خيار الطباعة.');
+                return;
+            }
+
+            const product = productsData.find(p => p.id === productId);
+            const finalPrice = state.withPrint ? product.price + 50 : product.price;
+
+            cart.push({
+                cartId: Date.now(),
+                name: product.name,
+                color: state.color,
+                size: state.size,
+                withPrint: state.withPrint,
+                printText: state.printText,
+                price: finalPrice
+            });
+
+            updateCartUI();
+            showToast();
+        }
+
+        function removeFromCart(cartId) {
+            cart = cart.filter(item => item.cartId !== cartId);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const cartItemsContainer = document.getElementById('cart-items');
+            const emptyMsg = document.getElementById('empty-cart-msg');
+            const totalElement = document.getElementById('cart-total');
+
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartItemsContainer.appendChild(emptyMsg);
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+                cart.forEach(item => {
+                    total += item.price;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'bg-dark-800 p-4 rounded-xl border border-gray-700 relative';
+                    itemDiv.innerHTML = `
+                        <button onclick="removeFromCart(${item.cartId})" class="absolute top-2 left-2 text-red-500 hover:text-red-400 transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <h4 class="font-bold text-white mb-1 pr-6">${item.name}</h4>
+                        <div class="text-sm text-gray-400 space-y-1">
+                            <p>اللون: <span class="text-white">${item.color}</span> | المقاس: <span class="text-white">${item.size}</span></p>
+                            ${item.withPrint ? `<p class="text-gold-400"><i class="fa-solid fa-pen-nib text-xs mr-1"></i> طباعة: ${item.printText}</p>` : ''}
+                        </div>
+                        <div class="mt-2 font-bold text-lg text-white">${item.price} ج.م</div>
+                    `;
+                    cartItemsContainer.appendChild(itemDiv);
+                });
+            }
+            totalElement.innerText = total + ' ج.م';
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            
+            sidebar.classList.toggle('open');
+            
+            if (sidebar.classList.contains('open')) {
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, -20px)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 0)';
+            }, 3000);
+        }
+
+        function checkoutWhatsApp() {
+            if (cart.length === 0) {
+                alert('عذراً، السلة فارغة!');
+                return;
+            }
+
+            let message = "أهلاً بك، أريد طلب المنتجات التالية من المتجر:\n\n";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                message += `*المنتج ${index + 1}:* ${item.name}\n`;
+                message += `▪️ اللون: ${item.color}\n`;
+                message += `▪️ المقاس: ${item.size}\n`;
+                if(item.withPrint) {
+                    message += `▪️ الطباعة: نعم (+50 ج) - "${item.printText}"\n`;
+                }
+                message += `💵 السعر: ${item.price} ج.م\n`;
+                message += `-----------------------\n`;
+                total += item.price;
+            });
+
+            message += `\n💰 *الإجمالي النهائي: ${total} ج.م*`;
+            const phone = "201038400110"; 
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+
+            window.location.href = whatsappUrl; 
+        }
+
+        renderProducts();
+    </script>
+</body>
+</html>
