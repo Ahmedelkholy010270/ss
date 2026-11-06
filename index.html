@@ -102,25 +102,25 @@
                 id: 1, 
                 name: 'هودي كلاسيك مقفول', 
                 price: 500, 
-                defaultImg: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1)_2.jpeg', 
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1).jpeg', 
                 colors: [
-                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1)_2.jpeg' },
-                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM_2.jpeg' },
-                    { name: 'بيج', hex: '#d4c4b7', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM_2.jpeg' },
-                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM (1)_2.jpeg' },
-                    { name: 'بينك', hex: '#e9aab6', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM_2.jpeg' }
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1).jpeg' },
+                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.00 PM.jpeg' },
+                    { name: 'بيج', hex: '#d4c4b7', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM.jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM (1).jpeg' },
+                    { name: 'بينك', hex: '#e9aab6', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM.jpeg' }
                 ]
             },
             { 
                 id: 2, 
                 name: 'هودي بسوستة', 
                 price: 600, 
-                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.00 PM_2.jpeg',
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1).jpeg',
                 colors: [
-                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.00 PM_2.jpeg' },
-                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1)_2.jpeg' },
-                    { name: 'زيتي', hex: '#4c5243', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (2)_2.jpeg' },
-                    { name: 'بيج', hex: '#c5b49f', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM_2.jpeg' },
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (2).jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1).jpeg' },
+                    { name: 'زيتي', hex: '#4c5243', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (3).jpeg' },
+                    { name: 'بيج', hex: '#c5b49f', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM.jpeg' },
                     { name: 'رصاصي', hex: '#9ca3af', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (1).jpeg' },
                     { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (2).jpeg' }
                 ]
@@ -236,7 +236,7 @@
             const imgElement = document.getElementById(`img-${productId}`);
             imgElement.src = imageSrc;
             
-            // تحديث حدث الضغط لتكبير الصورة الحالية المحددة باللون
+            // تحديث رابط الصورة عند النقر لتتكبير الصورة الظاهرة حالياً حسب اللون المختار
             imgElement.parentElement.setAttribute('onclick', `openImageModal('${imageSrc}')`);
 
             const container = document.getElementById(`colors-${productId}`);
