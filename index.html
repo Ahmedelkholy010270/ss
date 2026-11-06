@@ -59,6 +59,16 @@
 
     <main class="container mx-auto px-4 pb-20" id="products-container"></main>
 
+    <!-- نافذة تكبير الصورة (Lightbox Modal) -->
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] w-full flex justify-center items-center">
+            <button onclick="closeImageModal()" class="absolute -top-12 left-0 text-white text-3xl hover:text-gold-400 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="modal-img" src="" alt="صورة مكبرة" class="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl border border-gray-700">
+        </div>
+    </div>
+
     <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleCart()"></div>
     <div id="cart-sidebar" class="fixed top-0 h-full w-full md:w-96 glass-panel z-50 flex flex-col shadow-2xl">
         <div class="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -92,25 +102,25 @@
                 id: 1, 
                 name: 'هودي كلاسيك مقفول', 
                 price: 500, 
-                defaultImg: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1).jpeg', 
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1)_2.jpeg', 
                 colors: [
-                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1).jpeg' },
-                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.00 PM.jpeg' },
-                    { name: 'بيج', hex: '#d4c4b7', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM.jpeg' },
-                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM (1).jpeg' },
-                    { name: 'بينك', hex: '#e9aab6', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM.jpeg' }
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM (1)_2.jpeg' },
+                    { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.18.59 PM_2.jpeg' },
+                    { name: 'بيج', hex: '#d4c4b7', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM_2.jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.01 PM (1)_2.jpeg' },
+                    { name: 'بينك', hex: '#e9aab6', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM_2.jpeg' }
                 ]
             },
             { 
                 id: 2, 
                 name: 'هودي بسوستة', 
                 price: 600, 
-                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1).jpeg',
+                defaultImg: 'WhatsApp Image 2026-11-06 at 6.19.00 PM_2.jpeg',
                 colors: [
-                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (2).jpeg' },
-                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1).jpeg' },
-                    { name: 'زيتي', hex: '#4c5243', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (3).jpeg' },
-                    { name: 'بيج', hex: '#c5b49f', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM.jpeg' },
+                    { name: 'أسود', hex: '#1a1a1a', img: 'WhatsApp Image 2026-11-06 at 6.19.00 PM_2.jpeg' },
+                    { name: 'بني', hex: '#5b453e', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (1)_2.jpeg' },
+                    { name: 'زيتي', hex: '#4c5243', img: 'WhatsApp Image 2026-11-06 at 6.19.02 PM (2)_2.jpeg' },
+                    { name: 'بيج', hex: '#c5b49f', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM_2.jpeg' },
                     { name: 'رصاصي', hex: '#9ca3af', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (1).jpeg' },
                     { name: 'أزرق', hex: '#26598c', img: 'WhatsApp Image 2026-11-06 at 6.19.03 PM (2).jpeg' }
                 ]
@@ -161,8 +171,11 @@
                 card.className = 'glass-panel rounded-2xl overflow-hidden shadow-xl flex flex-col';
                 
                 card.innerHTML = `
-                    <div class="relative h-72 md:h-80 overflow-hidden bg-gray-800">
+                    <div class="relative h-72 md:h-80 overflow-hidden bg-gray-800 cursor-pointer" onclick="openImageModal('${product.defaultImg}')">
                         <img id="img-${product.id}" src="${product.defaultImg}" alt="${product.name}" class="w-full h-full object-cover transform hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x800/1F2937/FFFFFF?text=صورة+غير+متوفرة'">
+                        <div class="absolute bottom-3 right-3 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 pointer-events-none">
+                            <i class="fa-solid fa-expand"></i> اضغط للتكبير
+                        </div>
                         <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-gold-400 font-bold px-3 py-1 rounded-full">
                             ${product.price} ج.م
                         </div>
@@ -219,11 +232,31 @@
 
         function selectColor(productId, colorName, imageSrc, buttonElement) {
             productStates[productId].color = colorName;
-            document.getElementById(`img-${productId}`).src = imageSrc;
+            productStates[productId].currentImg = imageSrc;
+            const imgElement = document.getElementById(`img-${productId}`);
+            imgElement.src = imageSrc;
+            
+            // تحديث حدث الضغط لتكبير الصورة الحالية المحددة باللون
+            imgElement.parentElement.setAttribute('onclick', `openImageModal('${imageSrc}')`);
+
             const container = document.getElementById(`colors-${productId}`);
             const buttons = container.querySelectorAll('.swatch');
             buttons.forEach(btn => btn.classList.remove('selected'));
             buttonElement.classList.add('selected');
+        }
+
+        function openImageModal(imgSrc) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = imgSrc;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
         function selectSize(productId, size, buttonElement) {
